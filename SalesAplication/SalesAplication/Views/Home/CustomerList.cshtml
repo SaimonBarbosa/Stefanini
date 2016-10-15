@@ -1,0 +1,206 @@
+﻿@using SalesAplication.Models
+@model IEnumerable<CustomerListView>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#datetimepicker1').datetimepicker();
+            $('#datetimepicker2').datetimepicker();
+            setLoading("Loading...", "50%");            
+            LoadCities();          
+        });
+
+        function LoadCities() {
+            ConectServer("GET", "/Home/LoadCity", null);
+            setTimeout(function () {
+                $.each(jsondata, function (key, value) {
+                    $('#city')
+                    .append($("<option></option>")
+                                  .attr("value", value.CityId)
+                                 .text(value.CityName));
+                });
+                LoadRegion();
+            }, 1000)
+        }
+        function LoadRegion() {
+            ConectServer("GET", "/Home/LoadRegion", null);
+            setTimeout(function () {
+                $.each(jsondata, function (key, value) {
+                    $('#region')
+                    .append($("<option></option>")
+                                  .attr("value", value.RegionId)
+                                 .text(value.RegionName));
+                });
+                LoadClassification();
+            }, 2000)
+        }
+        function LoadClassification() {
+            ConectServer("GET", "/Home/LoadClassification", null);
+            setTimeout(function () {
+                $.each(jsondata, function (key, value) {
+                    $('#classification')
+                    .append($("<option></option>")
+                                  .attr("value", value.ClassificationId)
+                                 .text(value.ClassificationName));
+                });
+                LoadSeller();
+            }, 2000)
+        }
+        function LoadSeller() {
+            ConectServer("GET", "/Home/LoadSeller", null);
+            setTimeout(function () {
+                $.each(jsondata, function (key, value) {
+                    $('#seller')
+                    .append($("<option></option>")
+                                  .attr("value", value.UserId)
+                                 .text(value.Name));
+                });
+            }, 2000)
+            setLoading();
+        }
+        function Clear() {
+            document.getElementById("form").reset();
+        }
+
+        function Search() {                                  
+           
+        var url = window.location.origin + "/Home/CustomerListFilters?Name="+$("#name").val()+"&Gender="+$("#gender").val()+
+        "&City="+$("#city").val()+"&Region="+$("#region").val()+"&LastPurchase="+$("#dataini").val()+"&LastPurchaseEnd="+ $("#dataend").val()+
+        "&Classification="+$("#classification").val()+"&Selle="+$("#seller").val()+"&admin=" + '@ViewBag.Admin';
+             window.location = url; 
+        }
+    </script>
+}
+
+
+<form class="form-horizontal" id="form">
+    <div class="form-group">
+
+        <div class="col-md-12" align="left">
+            <div class="form-group">
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon" id="basic-addon1">Name</label>
+                    <input type="text" class="form-control" aria-describedby="basic-addon1" id="name">
+                </div>
+                <div class="input-group input-group-sm col-sm-2" align="left">
+                    <label class="input-group-addon">Gender</label>
+                    <select class="form-control"
+                            id="gender">
+                        <option value="">Select</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="input-group input-group-sm col-sm-2" align="left">
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-2">
+                        <div onclick="Search()" class="btn btn-default">  Search   </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon">City</label>
+                    <select class="form-control"
+                            id="city">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon">Region</label>
+                    <select class="form-control"
+                            id="region">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-2">
+                        <div onclick="Clear()" class="btn btn-default">Clear Fields</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon">Last Purchase</label>
+                    <div class='input-group date' id='datetimepicker1'>
+                        <input type='text' class="form-control" id="dataini" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon">until</label>
+                    <div class='input-group date' id='datetimepicker2'>
+                        <input type='text' class="form-control"  id="dataend"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon">Classification</label>
+                    <select class="form-control"
+                            id="classification">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                @if (ViewBag.Admin)
+                {
+                <div class="input-group input-group-sm col-sm-4">
+                    <label class="input-group-addon">Seller</label>
+                    <select class="form-control"
+                            id="seller">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+
+</form>
+
+
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Classification</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Gender</th>
+            <th>City</th>
+            <th>Region</th>
+            <th>Last Purchase</th>
+            @if(ViewBag.Admin)
+            {
+                <th>Seller</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Classification</td>
+                <td>@item.Name</td>
+                <td>@item.Phone</td>
+                <td>@item.Gender</td>
+                <td>@item.City</td>
+                <td>@item.Region</td>
+                <td>@item.LastPurchase</td>
+                @if (ViewBag.Admin)
+                {
+                    <td>@item.Selle</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
